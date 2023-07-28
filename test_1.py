@@ -1,3 +1,7 @@
+"""test_1 - the first test as part of the ministry of justice take home code assessment"""
+import os
+import glob
+import pandas as pd
 # [TODO]: step 1
 # Update the is_log_line function below to skip lines that are not valid log lines.
 # Valid log lines have a timestamp, error type, and message. For example, lines 1, 3,
@@ -5,11 +9,33 @@
 # There's no perfect way to do this: just decide what you think is reasonable to get
 # the test to pass. The only thing you are not allowed to do is filter out log lines
 # based on the exact row numbers you want to remove.
+
+def read_csv_file(csv_file_name:str) -> dict:
+    """Produces a .txt file containing SQL Statements to add data to database"""
+    if not isinstance(csv_file_name, str):
+        raise TypeError('Must enter a csv file name as a string')
+
+    current_directory = os.getcwd()
+    csv_file_path = os.path.join(current_directory, f'{csv_file_name}.csv')
+    file = glob.glob(csv_file_path)[0]
+    data = pd.read_csv(file).to_numpy()
+    csv_data = []
+    for entry in data:
+        csv_data_entry = {}
+        csv_data_entry["person_name"] = entry[0]
+        csv_data_entry["home_postcode"] = entry[1]
+        csv_data_entry["looking_for_court_type"] = entry[2]
+        csv_data.append(csv_data_entry)
+    return csv_data
+
+
 def is_log_line(line):
     """Takes a log line and returns True if it is a valid log line and returns nothing
     if it is not.
     """
-    return True
+    res = read_csv_file('people')
+    print(res)
+    # return True
 
 
 # [TODO]: step 2
@@ -91,3 +117,6 @@ if __name__ == "__main__":
         test_step_2()
     except Exception:
         print("step 2 test unable to run")
+
+
+read_csv_file('people')
