@@ -108,7 +108,6 @@ def get_court_by_postcode(postcode: str) -> list[dict]:
         f'{url}', timeout=60)
     if response.status_code != 200:
         raise APIError(f'API Response:{response.status_code}')
-    print(response, type(response))
     data = response.json()
     return data
 
@@ -150,6 +149,7 @@ def get_courts_for_person(people_data: list[dict]):
         desired_type = person["looking_for_court_type"]
 
         court_data = get_court_by_postcode(postcode)
+        print(name)
         for court in court_data:
             try:
                 court_type = court["types"][0]
@@ -158,8 +158,12 @@ def get_courts_for_person(people_data: list[dict]):
             # print(desired_type, court_type)
             if desired_type == court_type:
                 print(court)
-            break
-        break
+                court_name = court["name"]
+                court_dx_number = court["dx_number"]
+                court_distance = court["distance"]
+                print(court_name, court_dx_number, court_distance)
+
+        # break
 
 
 if __name__ == "__main__":
