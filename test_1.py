@@ -1,53 +1,93 @@
 """test_1 - the first test as part of the ministry of justice take home code assessment"""
-import os
-import glob
-import pandas as pd
-# [TODO]: step 1
-# Update the is_log_line function below to skip lines that are not valid log lines.
-# Valid log lines have a timestamp, error type, and message. For example, lines 1, 3,
-# 7 and 37 are all examples of lines (from sample.log) that would be filtered out.
-# There's no perfect way to do this: just decide what you think is reasonable to get
-# the test to pass. The only thing you are not allowed to do is filter out log lines
-# based on the exact row numbers you want to remove.
 
-def read_csv_file(csv_file_name:str) -> dict:
-    """Produces a .txt file containing SQL Statements to add data to database"""
-    if not isinstance(csv_file_name, str):
-        raise TypeError('Must enter a csv file name as a string')
-
-    current_directory = os.getcwd()
-    csv_file_path = os.path.join(current_directory, f'{csv_file_name}.csv')
-    file = glob.glob(csv_file_path)[0]
-    data = pd.read_csv(file).to_numpy()
-    csv_data = []
-    for entry in data:
-        csv_data_entry = {}
-        csv_data_entry["person_name"] = entry[0]
-        csv_data_entry["home_postcode"] = entry[1]
-        csv_data_entry["looking_for_court_type"] = entry[2]
-        csv_data.append(csv_data_entry)
-    return csv_data
+from datetime import datetime
 
 
-def is_log_line(line):
+def check_timestamp(timestamp: str) -> bool:
+    """
+    Check if the input argument is a valid timestamp in the correct format.
+
+    Argument:
+        timestamp (str): A string representing the timestamp.
+
+    Returns:
+        bool: True if the timestamp is valid and in the format 'dd/mm/yy HH:MM:SS',
+        otherwise False.
+
+    Raises:
+        TypeError: If the input argument is not of type str.
+    """
+    if not isinstance(timestamp, str):
+        raise TypeError("Input argument must be in str format!")
+    timestamp_format = "%d/%m/%y %H:%M:%S"
+    try:
+        datetime.strptime(timestamp, timestamp_format)
+        return True
+    except:
+        return False
+
+
+def check_log_level(log_level: str) -> bool:
+    """
+    Check if the input argument is a valid.
+
+    Argument:
+        log_level (str): A string representing the log level to be checked.
+
+    Returns:
+        bool: True if the log level is valid (is one of 'INFO', 'TRACE' or 'WARNING'),
+        otherwise False.
+
+    Raises:
+        TypeError: If the input argument is not of type str.
+    """
+    if not isinstance(log_level, str):
+        raise TypeError("Input argument must be in str format!")
+    if log_level in ["INFO", "TRACE", "WARNING"]:
+        return True
+    return False
+
+
+def is_log_line(line: str) -> bool:
     """Takes a log line and returns True if it is a valid log line and returns nothing
     if it is not.
     """
-    res = read_csv_file('people')
-    print(res)
-    # return True
+    if not isinstance(line, str):
+        raise TypeError("Input argument must be in str format!")
+    line_segments = line.split(maxsplit=3)
+    try:
+        timestamp = line_segments[0] + " " + line_segments[1]
+        error_type = line_segments[2]
+        message = line_segments[3]
+        if check_timestamp(timestamp) and error_type and message:
+            return True
+    except:
+        return False
 
 
-# [TODO]: step 2
-# Update the get_dict function below so it converts a line of the logs into a
-# dictionary with keys for "timestamp", "log_level", and "message". The valid log
-# levels are `INFO`, `TRACE`, and `WARNING`. See lines 67 to 71 for how we expect the
-# results to look.
-def get_dict(line):
+def get_dict(line: str) -> dict:
     """Takes a log line and returns a dict with
     `timestamp`, `log_level`, `message` keys
     """
-    pass
+    if not isinstance(line, str):
+        raise TypeError("Input argument must be in str format!")
+    line_segments = line.split(maxsplit=3)
+    try:
+        timestamp = line_segments[0] + " " + line_segments[1]
+        log_level = line_segments[2]
+        message = line_segments[3].strip()
+
+        timestamp_flag = check_timestamp(timestamp)
+        log_level_flag = check_log_level(log_level)
+
+        if timestamp_flag and log_level_flag:
+            return {
+                "timestamp": timestamp,
+                "log_level": log_level,
+                "message": message
+            }
+    except:
+        raise IndexError("Invalid input argument!")
 
 
 # YOU DON'T NEED TO CHANGE ANYTHING BELOW THIS LINE
@@ -117,6 +157,3 @@ if __name__ == "__main__":
         test_step_2()
     except Exception:
         print("step 2 test unable to run")
-
-
-read_csv_file('people')
