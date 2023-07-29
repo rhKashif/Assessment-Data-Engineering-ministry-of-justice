@@ -1,8 +1,7 @@
 """tests for functions defined in test_1.py"""
 # pylint: skip-file
 import pytest
-import datetime
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 import test_1
 
