@@ -108,7 +108,7 @@ def get_court_by_postcode(postcode: str) -> list[dict]:
         f'{url}', timeout=60)
     if response.status_code != 200:
         raise APIError(f'API Response:{response.status_code}')
-
+    print(response, type(response))
     data = response.json()
     return data
 

@@ -7,27 +7,27 @@ import test_1
 
 
 def test_check_timestamp_invalid_argument_type():
-    invalid_timestamp = ['invalid_timestamp_type']
+    mock_invalid_timestamp = ['invalid_timestamp_type']
     with pytest.raises(TypeError):
-        test_1.check_timestamp(invalid_timestamp)
+        test_1.check_timestamp(mock_invalid_timestamp)
 
 
 def test_check_timestamp_returns_True_for_valid_timestamp():
-    mock_valid_timestamp = '03/11/21 08:51:01'
-    res = test_1.check_timestamp(mock_valid_timestamp)
+    mock_invalid_timestamp = '03/11/21 08:51:01'
+    res = test_1.check_timestamp(mock_invalid_timestamp)
     assert res == True
 
 
 def test_check_timestamp_returns_False_for_invalid_timestamp():
-    mock_valid_timestamp = 'invalid_timestamp'
-    res = test_1.check_timestamp(mock_valid_timestamp)
+    mock_invalid_timestamp = 'invalid_timestamp'
+    res = test_1.check_timestamp(mock_invalid_timestamp)
     assert res == False
 
 
 def test_log_level_invalid_argument_type():
-    invalid_log_level = ['invalid_log_level']
+    mock_invalid_log_level = ['invalid_log_level']
     with pytest.raises(TypeError):
-        test_1.check_timestamp(invalid_log_level)
+        test_1.check_timestamp(mock_invalid_log_level)
 
 
 def test_log_level_returns_True_for_valid_log_level():
@@ -43,9 +43,9 @@ def test_check_log_level_returns_False_for_invalid_log_level():
 
 
 def test_is_log_line_invalid_argument_type():
-    invalid_is_log_line = ['invalid_is_log_line']
+    mock_invalid_is_log_line = ['invalid_is_log_line']
     with pytest.raises(TypeError):
-        test_1.is_log_line(invalid_is_log_line)
+        test_1.is_log_line(mock_invalid_is_log_line)
 
 
 @patch("test_1.check_timestamp")
@@ -68,15 +68,15 @@ def test_is_log_line_returns_False_for_invalid_log_level():
 
 
 def test_is_get_dict_invalid_argument_type():
-    invalid_log_line = ['invalid_get_dict']
+    mock_invalid_log_line = ['invalid_get_dict']
     with pytest.raises(TypeError):
-        test_1.get_dict(invalid_log_line)
+        test_1.get_dict(mock_invalid_log_line)
 
 
 def test_is_get_dict_invalid_argument_data():
-    invalid_log_line = 'invalid log_level message'
+    mock_invalid_log_line = 'invalid log_level message'
     with pytest.raises(IndexError):
-        test_1.get_dict(invalid_log_line)
+        test_1.get_dict(mock_invalid_log_line)
 
 
 @patch("test_1.check_log_level")
