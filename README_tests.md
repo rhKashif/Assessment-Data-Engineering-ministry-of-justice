@@ -29,3 +29,20 @@ Install requirements from .txt file:
 ```
 pip install -r requirements.txt
 ```
+## Useful Bash Script
+
+Run all python files to show completed assessments
+
+```
+bash main.sh
+```
+
+## Useful Python Commands
+
+Run a linter and pytest with coverage reporting for all completed assessments
+
+```
+pylint *.py
+pytest --cov-report term --cov .
+```
+
