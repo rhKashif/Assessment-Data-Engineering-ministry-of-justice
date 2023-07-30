@@ -99,7 +99,6 @@ def get_courts_for_person(person: dict) -> dict:
     postcode = person["home_postcode"]
 
     court_data = get_court_by_postcode(postcode)
-    desired_court_data_person = []
 
     for court in court_data:
         try:

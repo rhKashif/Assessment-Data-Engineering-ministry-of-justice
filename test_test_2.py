@@ -32,6 +32,12 @@ def test_get_court_by_postcode_calls_correct_functions(mock_requests_get):
     assert mock_response.json.call_count == 1
 
 
+def test_get_people_from_csv_invalid_argument():
+    mock_invalid_file_name = ['invalid file name']
+    with pytest.raises(TypeError):
+        test_2.get_people_from_csv(mock_invalid_file_name)
+
+
 @patch('pandas.read_csv')
 @patch('glob.glob')
 @patch('os.path.join')
@@ -45,3 +51,38 @@ def test_get_people_from_csv_returns_list_and_calls_correct_functions(mock_getcw
     assert mock_glob.call_count == 1
     assert mock_pd_read.call_count == 1
     assert isinstance(res, list)
+
+
+def test_get_courts_for_person_invalid_argument():
+    mock_invalid_person = ['invalid person']
+    with pytest.raises(TypeError):
+        test_2.get_courts_for_person(mock_invalid_person)
+
+
+@patch("test_2.get_court_by_postcode")
+def test_get_courts_for_person_returns_dict_and_calls_correct_functions(mock_get_court_by_postcode):
+    mock_person = {
+        "person_name": "mock_name",
+        "looking_for_court_type": "mock_type",
+        "home_postcode": "mock_postcode"
+    }
+    mock_get_court_by_postcode.return_value = [
+        {
+            "name": "mock_name",
+            "types": ["mock_type"],
+            "dx_number": "mock_dx_number",
+            "distance": "mock_distance"
+        }
+    ]
+    expected_result = {
+        "name": "mock_name",
+        "postcode": "mock_postcode",
+        "type": "mock_type",
+        "court_name": "mock_name",
+        "court_dx_number": "mock_dx_number",
+        "court_distance": "mock_distance"
+    }
+    res = test_2.get_courts_for_person(mock_person)
+    assert mock_get_court_by_postcode.call_count == 1
+    assert res == expected_result
+    assert isinstance(res, dict)
