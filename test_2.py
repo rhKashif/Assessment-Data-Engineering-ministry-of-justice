@@ -1,83 +1,14 @@
 """test_2 - the second test as part of the ministry of justice take home code assessment"""
 
-# A team of analysts wish to discover how far people are travelling to their nearest
-# desired court. We have provided you with a small test dataset so you can find out if
-# it is possible to give the analysts the data they need to do this. The data is in
-# `people.csv` and contains the following columns:
-# - person_name
-# - home_postcode
-# - looking_for_court_type
-
-# The courts and tribunals finder API returns a list of the 10 nearest courts to a
-# given postcode. The output is an array of objects in JSON format. The API is
-# accessed by including the postcode of interest in a URL. For example, accessing
-# https://courttribunalfinder.service.gov.uk/search/results.json?postcode=E144PU gives
-# the 10 nearest courts to the postcode E14 4PU. Visit the link to see an example of
-# the output.
-
-# Below is the first element of the JSON array from the above API call. We only want the
-# following keys from the json:
-# - name
-# - dx_number
-# - distance
-# dx_number is not always returned and the "types" field can be empty.
-
-"""
-[
-    {
-        "name": "Central London Employment Tribunal",
-        "lat": 51.5158158439741,
-        "lon": -0.118745425821452,
-        "number": null,
-        "cci_code": null,
-        "magistrate_code": null,
-        "slug": "central-london-employment-tribunal",
-        "types": [
-            "Tribunal"
-        ],
-        "address": {
-            "address_lines": [
-                "Victory House",
-                "30-34 Kingsway"
-            ],
-            "postcode": "WC2B 6EX",
-            "town": "London",
-            "type": "Visiting"
-        },
-        "areas_of_law": [
-            {
-                "name": "Employment",
-                "external_link": "https%3A//www.gov.uk/courts-tribunals/employment-tribunal",
-                "display_url": "<bound method AreaOfLaw.display_url of <AreaOfLaw: Employment>>",
-                "external_link_desc": "Information about the Employment Tribunal"
-            }
-        ],
-        "displayed": true,
-        "hide_aols": false,
-        "dx_number": "141420 Bloomsbury 7",
-        "distance": 1.29
-    },
-    etc
-
-"""
-
-# Use this API and the data in people.csv to determine how far each person's nearest
-# desired court is. Generate an output (of whatever format you feel is appropriate)
-# showing, for each person:
-# - name
-# - type of court desired
-# - home postcode
-# - nearest court of the right type
-# - the dx_number (if available) of the nearest court of the right type
-# - the distance to the nearest court of the right type
-
-
-
-
 import os
 import glob
 import requests
 import pandas as pd
+
+from rich.console import Console
+from rich.table import Table
+
+
 class APIError(Exception):
     """Describes an error triggered by a failing API call."""
 
@@ -126,6 +57,8 @@ def get_people_from_csv(csv_file_name: str) -> list[dict]:
         TypeError: If the input argument is not of type str.
 
     """
+    if not isinstance(csv_file_name, str):
+        raise TypeError("Input argument must be in str format!")
 
     current_directory = os.getcwd()
     csv_file_path = os.path.join(current_directory, f'{csv_file_name}.csv')
@@ -141,11 +74,28 @@ def get_people_from_csv(csv_file_name: str) -> list[dict]:
     return csv_data
 
 
-def get_courts_for_person(person: list[dict]):
-    """"""
+def get_courts_for_person(person: dict) -> dict:
+    """
+    Given a dictionary containing details for a person, 
+    return a dictionary containing data related to the nearest court
+
+    Argument:
+        person (dict): A dictionary containing a data related to a person: 
+        name, court type, home postcode
+
+    Returns:
+        dictionary: a dictionary containing data associated with a person and the closest court: 
+        name, postcode, court type, court name, court dx number, distance to court
+
+    Raises:
+        TypeError: If the input argument is not of type dict.
+
+    """
+    if not isinstance(person, dict):
+        raise TypeError("Input argument must be in dict format!")
+
     name = person["person_name"]
     desired_type = person["looking_for_court_type"]
-
     postcode = person["home_postcode"]
 
     court_data = get_court_by_postcode(postcode)
@@ -156,24 +106,98 @@ def get_courts_for_person(person: list[dict]):
             court_type = court["types"][0]
         except:
             court_type = None
-        # print(desired_type, court_type)
+
         if desired_type == court_type:
-            desired_court_data_person.append(
-                {"name": name, "type": desired_type, "court_name": court["name"], "court_dx_number": court["dx_number"], "court_distance": court["distance"]})
+            desired_court_data_person = {
+                "name": name, "postcode": postcode, "type": desired_type,
+                "court_name": court["name"], "court_dx_number": court["dx_number"],
+                "court_distance": court["distance"]}
             break
+
     return desired_court_data_person
 
 
-def get_courts_for_people(people_data: list[dict]):
+def get_courts_for_people(people_data: list[dict]) -> list[dict]:
+    """
+    Given a list containing dictionaries,
+    each dictionary contains details for a person, 
+    return a list containing dictionaries,
+    each dictionary contains details for a person and relevant court, 
+
+    Argument:
+        person (list[dict]): A list of dictionaries,
+        with each dictionary containing data related to a person: 
+        name, court type, home postcode
+
+    Returns:
+        list[dict]: a list of dictionaries,
+        with each dictionary containing data associated with a person and their nearest court: 
+        name, postcode, court type, court name, court dx number, distance to court
+
+    Raises:
+        TypeError: If the input argument is not of type dict.
+
+    """
+    if not isinstance(people_data, list):
+        raise TypeError("Input argument must be in dict format!")
+
     desired_court_data_people = []
     for person in people_data:
         data = get_courts_for_person(person)
         desired_court_data_people.append(data)
+
     return desired_court_data_people
 
 
+def render_data_output(people_court_data: list[dict]) -> Table:
+    """
+    Given a list of dictionaries, 
+    render a list of people and their nearest court to the console using the Rich Library
+
+    Argument:
+        people_court_data (list[dict]): A list of dictionaries,
+        with each dictionary containing data related to a person and their nearest court: 
+        name, postcode, court type, court name, court dx number, distance to court
+
+    Returns:
+        Table: a rich table object
+
+    Raises:
+        TypeError: If the input argument is not of type dict.
+    """
+
+    if not isinstance(people_court_data, list):
+        raise TypeError("Input argument must be in dict format!")
+
+    table = Table(title="Court Information")
+
+    table.add_column("Name:", justify="Left", style="cyan")
+    table.add_column("Home Postcode:", style="cyan")
+    table.add_column("Desired Court Type:", style="magenta")
+    table.add_column("Court Name:", style="red")
+    table.add_column("Court DX No.:", justify="left", style="red")
+    table.add_column("Distance to Court:", justify="right", style="green")
+
+    for person in people_court_data:
+        name = person['name']
+        court_type = person['type']
+        postcode = person['postcode']
+        court_name = person['court_name']
+        court_dx_number = person['court_dx_number']
+        court_distance = str(person['court_distance'])
+
+        if court_dx_number is None:
+            court_dx_number = 'N/A'
+
+        table.add_row(name, postcode, court_type, court_name,
+                      court_dx_number, court_distance)
+    return table
+
+
 if __name__ == "__main__":
-    postcode = 'E144PU'
-    csv_file_name = 'people'
-    people_data = get_people_from_csv(csv_file_name)
+    console = Console(record=True)
+    CSV_FILE_NAME = 'people'
+    people_data = get_people_from_csv(CSV_FILE_NAME)
     people_court_data = get_courts_for_people(people_data)
+    rendered_data_table = render_data_output(people_court_data)
+    console.print(rendered_data_table)
