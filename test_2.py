@@ -159,7 +159,7 @@ def render_data_output(people_court_data: list[dict]) -> Table:
         name, postcode, court type, court name, court dx number, distance to court
 
     Returns:
-        Table: a rich table object
+        Table: a rich table object  §
 
     Raises:
         TypeError: If the input argument is not of type dict.

@@ -3,6 +3,8 @@
 import pytest
 from unittest.mock import patch, MagicMock
 
+from rich.table import Table
+
 import test_2
 
 
@@ -86,3 +88,41 @@ def test_get_courts_for_person_returns_dict_and_calls_correct_functions(mock_get
     assert mock_get_court_by_postcode.call_count == 1
     assert res == expected_result
     assert isinstance(res, dict)
+
+
+def test_get_courts_for_people_invalid_argument():
+    mock_invalid_argument = 'invalid argument'
+    with pytest.raises(TypeError):
+        test_2.get_courts_for_people(mock_invalid_argument)
+
+
+@patch("test_2.get_courts_for_person")
+def test_get_courts_for_people_returns_list_and_calls_correct_functions(mock_get_courts_for_person):
+    mock_people_data = ['mock_people_data']
+    mock_get_courts_for_person.return_value = 'mock_person_data'
+    res = test_2.get_courts_for_people(mock_people_data)
+    assert mock_get_courts_for_person.call_count == 1
+    assert isinstance(res, list)
+
+
+def test_render_data_output_invalid_argument():
+    mock_invalid_argument = 'invalid argument'
+    with pytest.raises(TypeError):
+        test_2.render_data_output(mock_invalid_argument)
+
+
+@patch("test_2.Table")
+def test_render_data_output_returns_table(mock_table_object):
+    mock_people_court_data = [{
+        "name": "mock_name",
+        "postcode": "mock_postcode",
+        "type": "mock_type",
+        "court_name": "mock_name",
+        "court_dx_number": "mock_dx_number",
+        "court_distance": "mock_distance"
+    }]
+    mock_table_object.return_value = Table()
+
+    res = test_2.render_data_output(mock_people_court_data)
+    assert mock_table_object.call_count == 1
+    assert isinstance(res, Table)
