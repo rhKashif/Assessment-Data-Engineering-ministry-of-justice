@@ -141,33 +141,39 @@ def get_people_from_csv(csv_file_name: str) -> list[dict]:
     return csv_data
 
 
-def get_courts_for_person(people_data: list[dict]):
+def get_courts_for_person(person: list[dict]):
     """"""
+    name = person["person_name"]
+    desired_type = person["looking_for_court_type"]
+
+    postcode = person["home_postcode"]
+
+    court_data = get_court_by_postcode(postcode)
+    desired_court_data_person = []
+
+    for court in court_data:
+        try:
+            court_type = court["types"][0]
+        except:
+            court_type = None
+        # print(desired_type, court_type)
+        if desired_type == court_type:
+            desired_court_data_person.append(
+                {"name": name, "type": desired_type, "court_name": court["name"], "court_dx_number": court["dx_number"], "court_distance": court["distance"]})
+            break
+    return desired_court_data_person
+
+
+def get_courts_for_people(people_data: list[dict]):
+    desired_court_data_people = []
     for person in people_data:
-        name = person["person_name"]
-        postcode = person["home_postcode"]
-        desired_type = person["looking_for_court_type"]
-
-        court_data = get_court_by_postcode(postcode)
-        print(name)
-        for court in court_data:
-            try:
-                court_type = court["types"][0]
-            except:
-                court_type = None
-            # print(desired_type, court_type)
-            if desired_type == court_type:
-                print(court)
-                court_name = court["name"]
-                court_dx_number = court["dx_number"]
-                court_distance = court["distance"]
-                print(court_name, court_dx_number, court_distance)
-
-        # break
+        data = get_courts_for_person(person)
+        desired_court_data_people.append(data)
+    return desired_court_data_people
 
 
 if __name__ == "__main__":
     postcode = 'E144PU'
     csv_file_name = 'people'
     people_data = get_people_from_csv(csv_file_name)
-    res = get_courts_for_person(people_data)
+    people_court_data = get_courts_for_people(people_data)
